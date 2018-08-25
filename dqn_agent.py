@@ -142,12 +142,14 @@ class QNetwork(nn.Module):
         super(QNetwork, self).__init__()
         self.seed = torch.manual_seed(seed)
         hidden_size1 = 128
-        hidden_size2 = 128
-        hidden_size3 = 128
+        hidden_size2 = 64
+        hidden_size3 = 32
+        hidden_size4 = 16
         self.fc1 = nn.Linear(state_size,hidden_size1)
         self.fc2 = nn.Linear(hidden_size1, hidden_size2)      
         self.fc3 = nn.Linear(hidden_size2, hidden_size3)      
-        self.fc4 = nn.Linear(hidden_size3, action_size)      
+        self.fc4 = nn.Linear(hidden_size3, hidden_size4)      
+        self.fc5 = nn.Linear(hidden_size4, action_size)      
         
 
     def forward(self, state):
@@ -159,6 +161,8 @@ class QNetwork(nn.Module):
         x = self.fc3(x)
         x = F.relu(x)
         x = self.fc4(x)
+        x = F.relu(x)
+        x = self.fc5(x)
         return x
             
 class ReplayBuffer:
