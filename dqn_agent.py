@@ -22,7 +22,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class Agent():
     """Interacts with and learns from the environment."""
 
-    def __init__(self, state_size, action_size, seed, mode = 'DQN'):
+    def __init__(self, state_size, action_size, seed=0, mode = 'DQN'):
         """Initialize an Agent object.
         
         Params
@@ -91,10 +91,13 @@ class Agent():
         """
         states, actions, rewards, next_states, dones = experiences
         
+        # Double DQN model derives Q_targets from mix of target and local Q
         if self.mode == 'Double_DQN':
             Q_local_argmax = self.qnetwork_local(next_states).detach().max(1)[1].unsqueeze(1)
 
             Q_targets_next = self.qnetwork_target(next_states).gather(1, Q_local_argmax)
+        
+        # else mode is standard DQN
         else:
             # Get max predicted Q values (for next states) from target model
             Q_targets_next = self.qnetwork_target(next_states).detach().max(1)[0].unsqueeze(1)
@@ -140,16 +143,17 @@ class QNetwork(nn.Module):
             seed (int): Random seed
         """
         super(QNetwork, self).__init__()
-        self.seed = torch.manual_seed(seed)
+        self.seed = torch.manual_seed(seed)     
+        
+        # define dimensions of hidden layers
         hidden_size1 = 128
         hidden_size2 = 64
         hidden_size3 = 32
-        hidden_size4 = 16
         self.fc1 = nn.Linear(state_size,hidden_size1)
         self.fc2 = nn.Linear(hidden_size1, hidden_size2)      
         self.fc3 = nn.Linear(hidden_size2, hidden_size3)      
-        self.fc4 = nn.Linear(hidden_size3, hidden_size4)      
-        self.fc5 = nn.Linear(hidden_size4, action_size)      
+        self.fc4 = nn.Linear(hidden_size3, action_size)
+
         
 
     def forward(self, state):
@@ -160,9 +164,8 @@ class QNetwork(nn.Module):
         x = F.relu(x)
         x = self.fc3(x)
         x = F.relu(x)
+        # final layer without relu activation (regression problem)
         x = self.fc4(x)
-        x = F.relu(x)
-        x = self.fc5(x)
         return x
             
 class ReplayBuffer:
