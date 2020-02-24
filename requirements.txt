@@ -6,7 +6,7 @@ atomicwrites==1.1.5
 attrs==18.1.0
 backcall==0.1.0
 binaryornot==0.4.4
-bleach==1.5.0
+bleach==3.1.1
 box2d-py==2.3.4
 certifi==2018.8.13
 chardet==3.0.4
